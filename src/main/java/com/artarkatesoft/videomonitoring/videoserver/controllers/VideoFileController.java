@@ -19,8 +19,13 @@ public class VideoFileController {
     @GetMapping("/videos")
     @ResponseBody
     public List<VideoFile> getAllVideoFiles(@RequestParam(name = "limit", required = false) Long limit) {
-        if (limit == null) return videoFileService.findAll();
-        return videoFileService.findAll().stream().limit(limit).collect(Collectors.toList());
+        long start = System.currentTimeMillis();
+        List<VideoFile> allFiles = videoFileService.findAll();
+        System.out.printf(" videoFileService.findAll() takes %d ms\n", System.currentTimeMillis() - start);
+        int size = allFiles.size();
+        System.out.printf("Size of videoFileService.findAll(): %d\n", size);
+        if (limit == null) return allFiles;
+        return allFiles.stream().limit(limit).collect(Collectors.toList());
     }
 
     @PostMapping("/videos")

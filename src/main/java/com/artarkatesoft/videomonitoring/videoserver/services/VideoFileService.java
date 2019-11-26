@@ -2,6 +2,7 @@ package com.artarkatesoft.videomonitoring.videoserver.services;
 
 import com.artarkatesoft.videomonitoring.videoserver.model.VideoFile;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface VideoFileService {
@@ -9,5 +10,5 @@ public interface VideoFileService {
 
     void save(VideoFile file);
 
-    void saveAll(Iterable<VideoFile> files);
+    void saveAll(Collection<VideoFile> files);
 }

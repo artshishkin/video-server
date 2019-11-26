@@ -7,8 +7,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DatabaseVideoFileServiceImpl implements VideoFileService {
@@ -28,19 +31,30 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     }
 
     @Override
-    public void saveAll(Iterable<VideoFile> files) {
+    public void saveAll(Collection<VideoFile> files) {
         long start = System.currentTimeMillis();
 
-        try {
-            repository.saveAll(files);
 
+        List<String> pathsOfExistingFiles = repository.findAll()
+                .stream()
+                .map(VideoFile::getFilePath)
+                .collect(Collectors.toList());
 
-        } catch (Exception e) {
-            for (VideoFile file : files) {
-                if (!repository.exists(Example.of(file)))
-                    repository.save(file);
-            }
-        }
+        List<VideoFile> filesToAdd = files.stream()
+                .filter(videoFile -> !pathsOfExistingFiles.contains(videoFile.getFilePath()))
+                .collect(Collectors.toList());
+        repository.saveAll(filesToAdd);
+
+//        try {
+//            repository.saveAll(files);
+//
+//
+//        } catch (Exception e) {
+//            for (VideoFile file : files) {
+//                if (!repository.exists(Example.of(file)))
+//                    repository.save(file);
+//            }
+//        }
 
 //                repository.saveIgnore(file.getFullName(),file.getFilePath(),file.getSize(),file.getDate(),file.getCameraName(),file.getVideoType());
 
