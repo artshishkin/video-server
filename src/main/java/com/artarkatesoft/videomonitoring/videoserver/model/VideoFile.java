@@ -15,8 +15,8 @@ public class VideoFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String fullName;
+    // TODO: 28.11.2019 Refactor - change fullName to fileName
+    private String fileName;
 
     @Column(unique = true)
     private String filePath;
@@ -28,8 +28,8 @@ public class VideoFile {
 
     private String videoType;
 
-    public VideoFile(String fullName, String filePath, Long size, Date date, String cameraName, String videoType) {
-        this.fullName = fullName;
+    public VideoFile(String fileName, String filePath, Long size, Date date, String cameraName, String videoType) {
+        this.fileName = fileName;
         this.filePath = filePath;
         this.size = size;
         this.date = date;
@@ -38,8 +38,8 @@ public class VideoFile {
     }
 
 
-    public String getFullName() {
-        return fullName;
+    public String getFileName() {
+        return fileName;
     }
 
     public String getFilePath() {

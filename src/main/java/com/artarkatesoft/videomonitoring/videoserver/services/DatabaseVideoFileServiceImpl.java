@@ -4,10 +4,11 @@ import com.artarkatesoft.videomonitoring.videoserver.model.VideoFile;
 import com.artarkatesoft.videomonitoring.videoserver.repository.VideoFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +24,16 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     public List<VideoFile> findAll() {
         return repository.findAll(Sort.by(Sort.Direction.DESC, "date"));
     }
+
+    @Override
+    public List<VideoFile> findAllLimitedBy(int limit) {
+
+        Page<VideoFile> page = repository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+        List<VideoFile> videoFiles = page.get().collect(Collectors.toList());
+        return videoFiles;
+//        return repository.findTop10ByOrderByDateDesc();
+    }
+
 
     @Override
     public void save(VideoFile file) {
