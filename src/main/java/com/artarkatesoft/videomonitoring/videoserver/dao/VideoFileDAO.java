@@ -1,5 +1,6 @@
-package com.artarkatesoft.videomonitoring.videoserver.model;
+package com.artarkatesoft.videomonitoring.videoserver.dao;
 
+import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,12 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoFile {
+@Table(name = "video_file")
+public class VideoFileDAO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // TODO: 28.11.2019 Refactor - change fullName to fileName
+
     private String fileName;
 
     @Column(unique = true)
@@ -28,13 +30,25 @@ public class VideoFile {
 
     private String videoType;
 
-    public VideoFile(String fileName, String filePath, Long size, Date date, String cameraName, String videoType) {
+    private byte[] snapshot;
+
+    public VideoFileDAO(String fileName, String filePath, Long size, Date date, String cameraName, String videoType) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.size = size;
         this.date = date;
         this.cameraName = cameraName;
         this.videoType = videoType;
+    }
+
+    public VideoFileDAO(VideoFileDTO dto) {
+        this.fileName = dto.getFileName();
+        this.filePath = dto.getFilePath();
+        this.size = dto.getSize();
+        this.date = dto.getDate();
+        this.cameraName = dto.getCameraName();
+        this.videoType = dto.getVideoType();
+
     }
 
 
@@ -60,5 +74,13 @@ public class VideoFile {
 
     public String getVideoType() {
         return videoType;
+    }
+
+    public byte[] getSnapshot() {
+        return snapshot;
+    }
+
+    public void setSnapshot(byte[] snapshot) {
+        this.snapshot = snapshot;
     }
 }

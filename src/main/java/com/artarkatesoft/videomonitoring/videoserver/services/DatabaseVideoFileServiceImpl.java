@@ -1,6 +1,7 @@
 package com.artarkatesoft.videomonitoring.videoserver.services;
 
-import com.artarkatesoft.videomonitoring.videoserver.model.VideoFile;
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
+import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.repository.VideoFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -8,7 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -21,38 +28,74 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     private VideoFileRepository repository;
 
     @Override
-    public List<VideoFile> findAll() {
-        return repository.findAll(Sort.by(Sort.Direction.DESC, "date"));
+    public List<VideoFileDTO> findAll() {
+        return repository
+                .findAll(Sort.by(Sort.Direction.DESC, "date"))
+                .stream()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<VideoFile> findAllLimitedBy(int limit) {
+    public List<VideoFileDTO> findAllLimitedBy(Integer limit) {
+        Page<VideoFileDAO> page = repository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
 
-        Page<VideoFile> page = repository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
-        List<VideoFile> videoFiles = page.get().collect(Collectors.toList());
-        return videoFiles;
-//        return repository.findTop10ByOrderByDateDesc();
+        List<VideoFileDTO> videoFileDTOList = page
+                .get()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+        return videoFileDTOList;
+    }
+
+    @Override
+    public List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit) {
+        if (limit == null) return repository
+                .findAllBySnapshotIsNull()
+                .stream()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+        Page<VideoFileDAO> page = repository.findAllBySnapshotIsNull(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+        List<VideoFileDTO> videoFileDTOList = page.get()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+        return videoFileDTOList;
+    }
+
+    @Override
+    public List<VideoFileDTO> findAllWithSnapshotLimitedBy(Integer limit) {
+        if (limit == null) return repository
+                .findAllBySnapshotIsNotNull()
+                .stream()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+        Page<VideoFileDAO> page = repository.findAllBySnapshotIsNotNull(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+        List<VideoFileDTO> videoFileDTOList = page.get()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+        return videoFileDTOList;
     }
 
 
     @Override
-    public void save(VideoFile file) {
-        if (!repository.exists(Example.of(file)))
-            repository.save(file);
+    public void save(VideoFileDTO file) {
+        VideoFileDAO videoFileDAO = new VideoFileDAO(file);
+        if (!repository.exists(Example.of(videoFileDAO)))
+            repository.save(videoFileDAO);
     }
 
     @Override
-    public void saveAll(Collection<VideoFile> files) {
+    public void saveAll(Collection<VideoFileDTO> files) {
         long start = System.currentTimeMillis();
 
 
         List<String> pathsOfExistingFiles = repository.findAll()
                 .stream()
-                .map(VideoFile::getFilePath)
+                .map(VideoFileDAO::getFilePath)
                 .collect(Collectors.toList());
 
-        List<VideoFile> filesToAdd = files.stream()
-                .filter(videoFile -> !pathsOfExistingFiles.contains(videoFile.getFilePath()))
+        List<VideoFileDAO> filesToAdd = files.stream()
+                .filter(videoFileDAO -> !pathsOfExistingFiles.contains(videoFileDAO.getFilePath()))
+                .map(VideoFileDAO::new)
                 .collect(Collectors.toList());
         repository.saveAll(filesToAdd);
 
@@ -143,8 +186,77 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
         Date date = new Date();
         String cameraName = "192.168.1.11";
         String videoType = "Mod";
-        VideoFile videoFile = new VideoFile(fullName, filePath, size, date, cameraName, videoType);
+        VideoFileDAO videoFileDAO = new VideoFileDAO(fullName, filePath, size, date, cameraName, videoType);
 
-        repository.save(videoFile);
+        repository.save(videoFileDAO);
+    }
+
+    @Override
+    public void fakeCreateSnapshots() {
+        for (VideoFileDAO fileDAO : repository.findAllBySnapshotIsNull()) {
+            String filePath = fileDAO.getFilePath();
+
+            Path snapshotPath = Paths.get(filePath.replace(".h264", ".jpg"));
+            System.out.println(snapshotPath);
+            if (Files.exists(snapshotPath) && Files.isRegularFile(snapshotPath)) {
+                try {
+                    byte[] snapshotContent = Files.readAllBytes(snapshotPath);
+                    System.out.println("snapshotContent.length = " + snapshotContent.length);
+                    fileDAO.setSnapshot(snapshotContent);
+                    repository.save(fileDAO);
+
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+
+
+        }
+
+    }
+
+    @Override
+    public byte[] findSnapshotByVideoFilePath(String videoFilePath) {
+        VideoFileDAO videoFileDAO = repository.findOneByFilePath(videoFilePath);
+        return videoFileDAO.getSnapshot();
+    }
+
+    @Override
+    public void store(MultipartFile file, String fullFilePath) {
+
+
+        String originalFilename = (fullFilePath == null || fullFilePath.isEmpty()) ?
+                file.getOriginalFilename() : fullFilePath;
+//        String filename = StringUtils.cleanPath(originalFilename);
+        String filename = originalFilename;
+
+        System.out.println(filename);
+        filename = filename.replace(".jpg", ".h264");
+        System.out.println(filename);
+        try {
+            if (file.isEmpty()) {
+                throw new StorageException("Failed to store empty file " + filename);
+            }
+            if (filename.contains("..")) {
+                // This is a security check
+                throw new StorageException(
+                        "Cannot store file with relative path outside current directory "
+                                + filename);
+            }
+
+            byte[] fileContent = file.getBytes();
+            VideoFileDAO videoFileDAO = repository.findOneByFilePath(filename);
+            if (videoFileDAO == null)
+                videoFileDAO = repository.findOneByFilePathContains(filename);
+            if (videoFileDAO == null) return;
+            System.out.println(videoFileDAO.getFilePath());
+            videoFileDAO.setSnapshot(fileContent);
+            repository.save(videoFileDAO);
+
+        } catch (IOException e) {
+            throw new StorageException("Failed to store file " + filename, e);
+        }
+
     }
 }

@@ -1,6 +1,9 @@
 package com.artarkatesoft.videomonitoring.videoserver.repository;
 
-import com.artarkatesoft.videomonitoring.videoserver.model.VideoFile;
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
+import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
-public interface VideoFileRepository extends JpaRepository<VideoFile, Long> {
+public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 
     @Modifying
     @Query(value = "insert into video_file (camera_name, date, file_path, file_name, size, video_type) values (:camera_name, :date, :file_path, :file_name, :size, :video_type)  on conflict do nothing", nativeQuery = true)
@@ -30,8 +33,21 @@ public interface VideoFileRepository extends JpaRepository<VideoFile, Long> {
 //    Integer save(@Param("city")String city,@Param("country") String country);
 
 
-//    List<VideoFile> findTop10ByOrderByDateDesc(Long size);
-    List<VideoFile> findTop10ByOrderByDateDesc();
+    //    List<VideoFile> findTop10ByOrderByDateDesc(Long size);
+    List<VideoFileDAO> findTop10ByOrderByDateDesc();
+
+    Page<VideoFileDAO> findAllBySnapshotIsNull(Pageable pageable);
+
+    List<VideoFileDAO> findAllBySnapshotIsNull();
+
+    Page<VideoFileDAO> findAllBySnapshotIsNotNull(Pageable pageable);
+
+    List<VideoFileDAO> findAllBySnapshotIsNotNull();
+
+    //    VideoFileDAO findByFilePath(String filePath);
+    VideoFileDAO findOneByFilePath(String filePath);
+
+    VideoFileDAO findOneByFilePathContains(String filePath);
 
 
 }

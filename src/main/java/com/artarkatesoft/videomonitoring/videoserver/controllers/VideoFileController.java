@@ -1,16 +1,19 @@
 package com.artarkatesoft.videomonitoring.videoserver.controllers;
 
-import com.artarkatesoft.videomonitoring.videoserver.model.VideoFile;
+import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.services.VideoFileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class VideoFileController {
@@ -20,10 +23,10 @@ public class VideoFileController {
 
     @GetMapping("/api/videos")
     @ResponseBody
-    public List<VideoFile> getAllVideoFilesAPI(@RequestParam(name = "limit", required = false) Integer limit) {
+    public List<VideoFileDTO> getAllVideoFilesAPI(@RequestParam(name = "limit", required = false) Integer limit) {
         long start = System.currentTimeMillis();
 
-        List<VideoFile> allFiles = limit == null ? videoFileService.findAll() : videoFileService.findAllLimitedBy(limit);
+        List<VideoFileDTO> allFiles = limit == null ? videoFileService.findAll() : videoFileService.findAllLimitedBy(limit);
 
         System.out.printf(" videoFileService.findAll() takes %d ms\n", System.currentTimeMillis() - start);
 
@@ -36,11 +39,23 @@ public class VideoFileController {
 //        return allFiles.stream().limit(limit).collect(Collectors.toList());
     }
 
+    @GetMapping("/api/videos/without_snapshot")
+    @ResponseBody
+    public List<VideoFileDTO> getAllVideoFilesWithoutSnapshotsAPI(@RequestParam(name = "limit", required = false) Integer limit) {
+        return videoFileService.findAllWithoutSnapshotLimitedBy(limit);
+    }
+
+    @GetMapping("/api/videos/with_snapshot")
+    @ResponseBody
+    public List<VideoFileDTO> getAllVideoFilesWithSnapshotsAPI(@RequestParam(name = "limit", required = false) Integer limit) {
+        return videoFileService.findAllWithSnapshotLimitedBy(limit);
+    }
+
     @GetMapping("/videos")
     public String getAllVideoFiles(Model model, @RequestParam(name = "limit", required = false) Integer limit) {
         long start = System.currentTimeMillis();
 //        List<VideoFile> allFiles = videoFileService.findAll();
-        List<VideoFile> allFiles = limit == null ?
+        List<VideoFileDTO> allFiles = limit == null ?
                 videoFileService.findAll() :
                 videoFileService.findAllLimitedBy(limit);
 
@@ -50,37 +65,70 @@ public class VideoFileController {
         model.addAttribute("videoFilesFromController", allFiles);
 
 
-
 //        return allFiles.stream().limit(limit).collect(Collectors.toList());
         return "videos_page";
     }
 
 
-
-
     @PostMapping("/api/videos")
     @ResponseBody
-    public ResponseEntity<Object> addAllVideoFiles(@RequestBody List<VideoFile> videoFiles) {
-        videoFileService.saveAll(videoFiles);
+    public ResponseEntity<Object> addAllVideoFiles(@RequestBody List<VideoFileDTO> videoFileDTOList) {
+        videoFileService.saveAll(videoFileDTOList);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/api/videos/add")
     @ResponseBody
-    public String addVideoFile(@RequestBody VideoFile videoFile) {
-//        System.out.println(videoFile);
-        videoFileService.save(videoFile);
-
-
-        return "OK";
+    public ResponseEntity<Object> addVideoFile(@RequestBody VideoFileDTO videoFileDTO) {
+        videoFileService.save(videoFileDTO);
+        return ResponseEntity.ok().build();
     }
-//public ResponseEntity<Object> addVideoFile(@RequestBody VideoFile videoFile) {
-//        System.out.println(videoFile);
-//        videoFileService.save(videoFile);
+
+    @PostMapping("/api/videos/snapshot")
+    @ResponseBody
+    public ResponseEntity<Object> addSnapshot(@RequestParam("file") MultipartFile file, @RequestParam(value = "full_file_path", required = false) String fullFilePath/*,
+                                              RedirectAttributes redirectAttributes*/) {
+
+        videoFileService.store(file, fullFilePath);
+        return ResponseEntity.ok().build();
+
+//        redirectAttributes.addFlashAttribute("message",
+//                "You successfully uploaded " + file.getOriginalFilename() + "!");
 //
-//
-//        return ResponseEntity.ok().build();
+//        return "redirect:/";
+    }
+
+
+    @GetMapping(value = "/videos/snapshot", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> getSnapshot(@RequestParam(name = "video_file_path") String videoFilePath) throws IOException {
+        byte[] snapshot = videoFileService.findSnapshotByVideoFilePath(videoFilePath);
+        if (snapshot == null) return ResponseEntity.notFound().build();
+        ByteArrayInputStream bais = new ByteArrayInputStream(snapshot);
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(bais));
+    }
+// @GetMapping(value = "/videos/snapshot", produces = MediaType.IMAGE_JPEG_VALUE)
+//    @ResponseBody
+//    public ResponseEntity<InputStreamResource> getSnapshot(@RequestParam(name = "filename", required = false) String fileName) throws IOException {
+//        ClassPathResource imgFile = new ClassPathResource("image/20191123_184245.jpg");
+//        return ResponseEntity
+//                .ok()
+//                .contentType(MediaType.IMAGE_JPEG)
+//                .body(new InputStreamResource(imgFile.getInputStream()));
 //    }
+
+    @GetMapping(value = "/videos/snapshot/make")
+    @ResponseBody
+    public ResponseEntity<Object> fillDatabaseWithSnapshots(@RequestParam(name = "filename", required = false) String fileName) throws IOException {
+
+        videoFileService.fakeCreateSnapshots();
+        return ResponseEntity
+                .ok()
+                .build();
+    }
 
 
 }

@@ -26,6 +26,7 @@
             <th>File Name</th>
             <th>Date</th>
             <th>Size (in bytes)</th>
+            <th>Snapshot</th>
         </tr>
 
         <#list videoFilesFromController as video_file>
@@ -35,6 +36,11 @@
                 <td>${video_file.fileName}</td>
                 <td>${video_file.date}</td>
                 <td>${video_file.size}</td>
+                <td>
+                    <img src="/videos/snapshot?video_file_path=${video_file.filePathEncoded}" class="img-thumbnail"/>
+
+
+                </td>
             </tr>
         </#list>
 
