@@ -32,7 +32,6 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
         return repository.findAllBy(Sort.by(Sort.Direction.DESC, "date"));
 
 
-
 //        return repository
 //                .findAll(Sort.by(Sort.Direction.DESC, "date"))
 //                .stream()
@@ -99,10 +98,12 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 //                .map(VideoFileDAO::getFilePath)
 //                .collect(Collectors.toList());
 
-        List<String> pathsOfExistingFiles = repository.findAllBy(Sort.unsorted())
-                .stream()
-                .map(VideoFileDTO::getFilePath)
-                .collect(Collectors.toList());
+//        List<String> pathsOfExistingFiles = repository.findAllBy(Sort.unsorted())
+//                .stream()
+//                .map(VideoFileDTO::getFilePath)
+//                .collect(Collectors.toList());
+
+        List<String> pathsOfExistingFiles = repository.findAllPaths();
 
         List<VideoFileDAO> filesToAdd = files.stream()
                 .filter(videoFileDAO -> !pathsOfExistingFiles.contains(videoFileDAO.getFilePath()))
