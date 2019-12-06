@@ -29,21 +29,27 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 
     @Override
     public List<VideoFileDTO> findAll() {
-        return repository
-                .findAll(Sort.by(Sort.Direction.DESC, "date"))
-                .stream()
-                .map(VideoFileDTO::new)
-                .collect(Collectors.toList());
+        return repository.findAllBy(Sort.by(Sort.Direction.DESC, "date"));
+
+
+
+//        return repository
+//                .findAll(Sort.by(Sort.Direction.DESC, "date"))
+//                .stream()
+//                .map(VideoFileDTO::new)
+//                .collect(Collectors.toList());
     }
 
     @Override
     public List<VideoFileDTO> findAllLimitedBy(Integer limit) {
-        Page<VideoFileDAO> page = repository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
-
-        List<VideoFileDTO> videoFileDTOList = page
-                .get()
-                .map(VideoFileDTO::new)
-                .collect(Collectors.toList());
+//        Page<VideoFileDAO> page = repository.findAll(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+//        List<VideoFileDTO> videoFileDTOList = page
+//                .get()
+//                .map(VideoFileDTO::new)
+//                .collect(Collectors.toList());
+        Page<VideoFileDTO> page = repository.findAllBy(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+// TODO: 06.12.2019 Refactor that not to call findAll() here
+        List<VideoFileDTO> videoFileDTOList = page.toList();
         return videoFileDTOList;
     }
 
@@ -88,15 +94,21 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
         long start = System.currentTimeMillis();
 
 
-        List<String> pathsOfExistingFiles = repository.findAll()
+//        List<String> pathsOfExistingFiles = repository.findAll()
+//                .stream()
+//                .map(VideoFileDAO::getFilePath)
+//                .collect(Collectors.toList());
+
+        List<String> pathsOfExistingFiles = repository.findAllBy(Sort.unsorted())
                 .stream()
-                .map(VideoFileDAO::getFilePath)
+                .map(VideoFileDTO::getFilePath)
                 .collect(Collectors.toList());
 
         List<VideoFileDAO> filesToAdd = files.stream()
                 .filter(videoFileDAO -> !pathsOfExistingFiles.contains(videoFileDAO.getFilePath()))
                 .map(VideoFileDAO::new)
                 .collect(Collectors.toList());
+
         repository.saveAll(filesToAdd);
 
 //        try {

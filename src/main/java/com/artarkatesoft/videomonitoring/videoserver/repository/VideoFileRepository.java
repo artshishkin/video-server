@@ -4,6 +4,7 @@ import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -48,6 +49,9 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
     VideoFileDAO findOneByFilePath(String filePath);
 
     VideoFileDAO findOneByFilePathContains(String filePath);
+
+    List<VideoFileDTO> findAllBy(Sort sort);
+    Page<VideoFileDTO> findAllBy(Pageable pageable);
 
 
 }
