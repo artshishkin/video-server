@@ -37,7 +37,7 @@
                 <td>${video_file.date}</td>
                 <td>${video_file.size}</td>
                 <td>
-                    <img src="/videos/snapshot?video_file_path=${video_file.filePathEncoded}" class="img-thumbnail"/>
+                    <img src="/videos/snapshot?video_file_path=${video_file.filePathEncoded}" class="img-thumbnail" alt="No snapshot"/>
 
 
                 </td>

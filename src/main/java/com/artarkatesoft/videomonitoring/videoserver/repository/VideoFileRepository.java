@@ -56,10 +56,14 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 //    There was an unexpected error (type=Internal Server Error, status=500).
 //    could not extract ResultSet; nested exception is org.hibernate.exception.GenericJDBCException: could not extract ResultSet
 
-//    @Modifying
+
     @Query(value = "select v.filePath from VideoFileDAO v")
-//    @Transactional
     List<String> findAllPaths();
 
+    @Query(value = "select v.filePath from VideoFileDAO v order by v.date desc")
+    List<String> findAllPathsOrderByDateDesc();
+
+    @Query(value = "select v.filePath from VideoFileDAO v")
+    List<String> findAllPaths(Pageable pageable);
 
 }

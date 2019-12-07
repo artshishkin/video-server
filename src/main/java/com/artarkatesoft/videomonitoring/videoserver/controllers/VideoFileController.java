@@ -69,6 +69,27 @@ public class VideoFileController {
         return "videos_page";
     }
 
+    @GetMapping("/videos/snapshots")
+    public String getAllSnapshots(Model model, @RequestParam(name = "limit", required = false) Integer limit) {
+        long start = System.currentTimeMillis();
+//        List<VideoFile> allFiles = videoFileService.findAll();
+        List<VideoFileDTO> allFiles = limit == null ?
+                videoFileService.findAll() :
+                videoFileService.findAllLimitedBy(limit);
+
+
+
+        System.out.printf(" videoFileService.findAll() takes %d ms\n", System.currentTimeMillis() - start);
+        int size = allFiles.size();
+        System.out.printf("Size of videoFileService.findAll(): %d\n", size);
+        model.addAttribute("videoFilesFromController", allFiles);
+
+
+//        return allFiles.stream().limit(limit).collect(Collectors.toList());
+        return "snapshots_page";
+    }
+
+
 
     @PostMapping("/api/videos")
     @ResponseBody

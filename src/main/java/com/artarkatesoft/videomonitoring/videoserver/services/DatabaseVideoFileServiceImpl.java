@@ -106,7 +106,7 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
         List<String> pathsOfExistingFiles = repository.findAllPaths();
 
         List<VideoFileDAO> filesToAdd = files.stream()
-                .filter(videoFileDAO -> !pathsOfExistingFiles.contains(videoFileDAO.getFilePath()))
+                .filter(videoFileDTO -> !pathsOfExistingFiles.contains(videoFileDTO.getFilePath()))
                 .map(VideoFileDAO::new)
                 .collect(Collectors.toList());
 
