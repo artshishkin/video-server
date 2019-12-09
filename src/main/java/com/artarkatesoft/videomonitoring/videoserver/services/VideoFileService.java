@@ -11,7 +11,10 @@ public interface VideoFileService {
 
     List<VideoFileDTO> findAllLimitedBy(Integer limit);
 
+    List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit);
+
     List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit);
+
     List<VideoFileDTO> findAllWithSnapshotLimitedBy(Integer limit);
 
     void save(VideoFileDTO file);

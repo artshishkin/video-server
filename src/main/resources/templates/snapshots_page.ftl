@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Camera video files</title>
+    <title>Camera snapshots</title>
 
 
     <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet"/>
@@ -50,7 +50,7 @@
             padding: 10px 16px;
             background-color: #f1f1f1;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 36px;
         }
 
         .btn:hover {
@@ -81,7 +81,7 @@
 
 <!-- Header -->
 <div class="header" id="myHeader">
-    <h1>Image Grid</h1>
+    <h1>Snapshots Grid</h1>
     <p>Click on the buttons to change the grid view.</p>
     <button class="btn" onclick="one()">1</button>
     <button class="btn active" onclick="two()">2</button>

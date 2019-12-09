@@ -5,30 +5,39 @@
     <title>Starting page</title>
 </head>
 <body>
-Hello
 
 <div>
-    <a class="btn-link" href="/videos/snapshots?limit=100">Snapshots</a>
+    <h1>Choose page</h1>
+</div>
+<div class="btn">
+
+    <a href="/videos?limit=100">All video files info (limit 100)</a>
+    <br>
+    <a href="/api/videos?limit=100">All video files RESTful info (limit 100)</a>
+    <br>
+    <a href="/videos/snapshots?limit=100">All snapshots (limit 100)</a>
+    <br>
+    <a href="/videos/snapshots/192.168.1.11?limit=100">Snapshots of 192.168.1.11 (limit 100)</a>
+    <br>
+    <a href="/videos/snapshots/192.168.1.10?limit=100">Snapshots of 192.168.1.10 (limit 100)</a>
 
 </div>
 
 
-<div>
-    <form method="POST" enctype="multipart/form-data" action="/api/videos/snapshot">
-        <table>
-            <tr>
-                <td>File to upload:</td>
-                <td><input type="file" name="file" accept=".jpg"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input type="submit" value="Upload"/></td>
-            </tr>
-        </table>
-    </form>
-</div>
-
-
+<!--<div>-->
+<!--    <form method="POST" enctype="multipart/form-data" action="/api/videos/snapshot">-->
+<!--        <table>-->
+<!--            <tr>-->
+<!--                <td>File to upload:</td>-->
+<!--                <td><input type="file" name="file" accept=".jpg"/></td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td></td>-->
+<!--                <td><input type="submit" value="Upload"/></td>-->
+<!--            </tr>-->
+<!--        </table>-->
+<!--    </form>-->
+<!--</div>-->
 
 
 </body>

@@ -53,6 +53,15 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     }
 
     @Override
+    public List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit) {
+        if (limit == null) limit = 100;
+        Page<VideoFileDTO> page = repository.findAllByCameraName(cameraName, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+
+        return page.toList();
+
+    }
+
+    @Override
     public List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit) {
         if (limit == null) return repository
                 .findAllBySnapshotIsNull()
