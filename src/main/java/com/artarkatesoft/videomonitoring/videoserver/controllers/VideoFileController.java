@@ -5,6 +5,7 @@ import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.services.VideoFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class VideoFileController {
@@ -146,8 +148,10 @@ public class VideoFileController {
         byte[] snapshot = videoFileService.findSnapshotByVideoFilePath(videoFilePath);
         if (snapshot == null) return ResponseEntity.notFound().build();
         ByteArrayInputStream bais = new ByteArrayInputStream(snapshot);
+        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES);
         return ResponseEntity
                 .ok()
+                .cacheControl(cacheControl)
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(bais));
     }
