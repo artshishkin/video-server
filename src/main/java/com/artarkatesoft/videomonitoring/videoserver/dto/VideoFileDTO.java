@@ -1,6 +1,7 @@
 package com.artarkatesoft.videomonitoring.videoserver.dto;
 
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,15 @@ public class VideoFileDTO {
         this.cameraName = dao.getCameraName();
         this.videoType = dao.getVideoType();
 
+    }
+
+    public VideoFileDTO(VideoFileDAOwoSnapshotProjection dao) {
+        this.fileName = dao.getFileName();
+        this.filePath = dao.getFilePath();
+        this.size = dao.getSize();
+        this.date = dao.getDate();
+        this.cameraName = dao.getCameraName();
+        this.videoType = dao.getVideoType();
     }
 
     public String getFileName() {

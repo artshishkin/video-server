@@ -1,6 +1,7 @@
 package com.artarkatesoft.videomonitoring.videoserver.repository;
 
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +54,8 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
     List<VideoFileDTO> findAllBy(Sort sort);
     Page<VideoFileDTO> findAllBy(Pageable pageable);
 
-    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
+//    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
+    Page<VideoFileDAOwoSnapshotProjection> findAllByCameraName(String cameraName, Pageable pageable);
 
 //    There was an unexpected error (type=Internal Server Error, status=500).
 //    could not extract ResultSet; nested exception is org.hibernate.exception.GenericJDBCException: could not extract ResultSet

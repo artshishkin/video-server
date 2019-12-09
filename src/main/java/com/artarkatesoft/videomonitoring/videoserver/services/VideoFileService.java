@@ -1,5 +1,6 @@
 package com.artarkatesoft.videomonitoring.videoserver.services;
 
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +12,8 @@ public interface VideoFileService {
 
     List<VideoFileDTO> findAllLimitedBy(Integer limit);
 
-    List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit);
+    List<VideoFileDAOwoSnapshotProjection> findAllByCameraNameLimitBy(String cameraName, Integer limit);
+//    List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit);
 
     List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit);
 

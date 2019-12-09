@@ -1,6 +1,7 @@
 package com.artarkatesoft.videomonitoring.videoserver.services;
 
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.repository.VideoFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,13 +54,42 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     }
 
     @Override
-    public List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit) {
+    public List<VideoFileDAOwoSnapshotProjection> findAllByCameraNameLimitBy(String cameraName, Integer limit) {
         if (limit == null) limit = 100;
-        Page<VideoFileDTO> page = repository.findAllByCameraName(cameraName, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+        Page<VideoFileDAOwoSnapshotProjection> page = repository.findAllByCameraName(cameraName, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
 
         return page.toList();
 
     }
+
+
+
+
+
+//    @Override
+//    public List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit) {
+//        if (limit == null) limit = 100;
+//        List<VideoFileDTO> videoFileDTOList = repository
+//                .findAllByCameraName(cameraName, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")))
+//                .get()
+//                .map(VideoFileDTO::new)
+//                .collect(Collectors.toList());
+//
+//        return videoFileDTOList;
+//
+//    }
+//
+
+
+
+//    @Override
+//    public List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit) {
+//        if (limit == null) limit = 100;
+//        Page<VideoFileDTO> page = repository.findAllByCameraName(cameraName, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+//
+//        return page.toList();
+//
+//    }
 
     @Override
     public List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit) {

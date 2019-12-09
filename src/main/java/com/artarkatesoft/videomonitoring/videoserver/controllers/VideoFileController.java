@@ -1,5 +1,6 @@
 package com.artarkatesoft.videomonitoring.videoserver.controllers;
 
+import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.services.VideoFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,8 +96,11 @@ public class VideoFileController {
 //                videoFileService.findAll() :
 //                videoFileService.findAllLimitedBy(limit);
 
-        List<VideoFileDTO> allFiles =
+
+ List<VideoFileDAOwoSnapshotProjection> allFiles =
                 videoFileService.findAllByCameraNameLimitBy(cameraName, limit);
+//List<VideoFileDTO> allFiles =
+//                videoFileService.findAllByCameraNameLimitBy(cameraName, limit);
 
 
         model.addAttribute("videoFilesFromController", allFiles);
