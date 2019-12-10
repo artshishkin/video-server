@@ -13,6 +13,8 @@ public interface VideoFileService {
     List<VideoFileDTO> findAllLimitedBy(Integer limit);
 
     List<VideoFileDAOwoSnapshotProjection> findAllByCameraNameLimitBy(String cameraName, Integer limit);
+    List<VideoFileDAOwoSnapshotProjection> findAllByCameraNameAndVideoTypeLimitBy(String cameraName, String videoType, Integer limit);
+
 //    List<VideoFileDTO> findAllByCameraNameLimitBy(String cameraName, Integer limit);
 
     List<VideoFileDTO> findAllWithoutSnapshotLimitedBy(Integer limit);

@@ -62,8 +62,14 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 
     }
 
+    @Override
+    public List<VideoFileDAOwoSnapshotProjection> findAllByCameraNameAndVideoTypeLimitBy(String cameraName, String videoType, Integer limit) {
+        if (limit == null) limit = 100;
+        Page<VideoFileDAOwoSnapshotProjection> page = repository.findAllByCameraNameAndVideoType(cameraName,
+                videoType, PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
 
-
+        return page.toList();
+    }
 
 
 //    @Override
@@ -79,7 +85,6 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 //
 //    }
 //
-
 
 
 //    @Override

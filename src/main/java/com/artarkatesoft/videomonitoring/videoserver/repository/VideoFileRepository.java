@@ -56,6 +56,7 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 
 //    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
     Page<VideoFileDAOwoSnapshotProjection> findAllByCameraName(String cameraName, Pageable pageable);
+    Page<VideoFileDAOwoSnapshotProjection> findAllByCameraNameAndVideoType(String cameraName,String videoType, Pageable pageable);
 
 //    There was an unexpected error (type=Internal Server Error, status=500).
 //    could not extract ResultSet; nested exception is org.hibernate.exception.GenericJDBCException: could not extract ResultSet

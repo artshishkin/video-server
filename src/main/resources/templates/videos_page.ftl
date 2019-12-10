@@ -5,7 +5,7 @@
     <title>Camera video files</title>
 
 
-    <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+    <link type="text/css" href="/css/bootstrap.min.css" rel="stylesheet" />
 
 
 </head>

@@ -99,7 +99,7 @@ public class VideoFileController {
 //                videoFileService.findAllLimitedBy(limit);
 
 
- List<VideoFileDAOwoSnapshotProjection> allFiles =
+        List<VideoFileDAOwoSnapshotProjection> allFiles =
                 videoFileService.findAllByCameraNameLimitBy(cameraName, limit);
 //List<VideoFileDTO> allFiles =
 //                videoFileService.findAllByCameraNameLimitBy(cameraName, limit);
@@ -109,6 +109,17 @@ public class VideoFileController {
 
 
 //        return allFiles.stream().limit(limit).collect(Collectors.toList());
+        return "snapshots_page";
+    }
+
+    @GetMapping("/videos/snapshots/{cameraName}/{videoType}")
+    public String getCameraSnapshotsByType(Model model, @RequestParam(name = "limit", required = false) Integer limit,
+                                           @PathVariable String cameraName, @PathVariable String videoType) {
+
+
+        List<VideoFileDAOwoSnapshotProjection> allFiles =
+                videoFileService.findAllByCameraNameAndVideoTypeLimitBy(cameraName, videoType, limit);
+        model.addAttribute("videoFilesFromController", allFiles);
         return "snapshots_page";
     }
 
@@ -146,9 +157,14 @@ public class VideoFileController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> getSnapshot(@RequestParam(name = "video_file_path") String videoFilePath) throws IOException {
         byte[] snapshot = videoFileService.findSnapshotByVideoFilePath(videoFilePath);
-        if (snapshot == null) return ResponseEntity.notFound().build();
+
+        if (snapshot == null) return ResponseEntity
+                .notFound()
+                .cacheControl(CacheControl.maxAge(6, TimeUnit.MINUTES))
+                .build();
+
         ByteArrayInputStream bais = new ByteArrayInputStream(snapshot);
-        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES);
+        CacheControl cacheControl = CacheControl.maxAge(5, TimeUnit.DAYS);
         return ResponseEntity
                 .ok()
                 .cacheControl(cacheControl)
