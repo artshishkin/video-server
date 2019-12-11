@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 
@@ -52,11 +53,27 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
     VideoFileDAO findOneByFilePathContains(String filePath);
 
     List<VideoFileDTO> findAllBy(Sort sort);
+
     Page<VideoFileDTO> findAllBy(Pageable pageable);
 
-//    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
+    //    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
     Page<VideoFileDAOwoSnapshotProjection> findAllByCameraName(String cameraName, Pageable pageable);
-    Page<VideoFileDAOwoSnapshotProjection> findAllByCameraNameAndVideoType(String cameraName,String videoType, Pageable pageable);
+
+    Page<VideoFileDAOwoSnapshotProjection> findAllByCameraNameAndVideoType(String cameraName, String videoType, Pageable pageable);
+
+
+    List<VideoFileDAOwoSnapshotProjection> findAllByOrderByDateDesc();
+
+    void deleteAllByFilePath(Iterable<String> filePaths);
+
+    @Transactional
+    void deleteByFilePath(String filePath);
+
+//    @Transactional
+//    Stream<VideoFileDAOwoSnapshotProjection> findAllByOrderByDateDesc();
+// TODO: 11.12.2019 Mistake must be fixed
+//    org.springframework.dao.InvalidDataAccessApiUsageException: You're trying to execute a streaming query method without a surrounding transaction that keeps the connection open so that the Stream can actually be consumed. Make sure the code consuming the stream uses @Transactional or any other way of declaring a (read-only) transaction.
+
 
 //    There was an unexpected error (type=Internal Server Error, status=500).
 //    could not extract ResultSet; nested exception is org.hibernate.exception.GenericJDBCException: could not extract ResultSet

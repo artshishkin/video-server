@@ -5,6 +5,7 @@ import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotP
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.repository.VideoFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +29,9 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 
     @Autowired
     private VideoFileRepository repository;
+
+    @Value("${com.artarkatesoft.cam.video-server.video-file-service.files-limit:#{null}}")
+    private Long filesCountLimit;
 
     @Override
     public List<VideoFileDTO> findAll() {
@@ -149,12 +154,45 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 
         List<String> pathsOfExistingFiles = repository.findAllPaths();
 
-        List<VideoFileDAO> filesToAdd = files.stream()
-                .filter(videoFileDTO -> !pathsOfExistingFiles.contains(videoFileDTO.getFilePath()))
-                .map(VideoFileDAO::new)
-                .collect(Collectors.toList());
+
+        List<VideoFileDAO> filesToAdd =
+                files.stream()
+                        .sorted(Comparator.comparing(VideoFileDTO::getDate).reversed())
+                        .limit(filesCountLimit != null ? filesCountLimit : Long.MAX_VALUE)
+                        .filter(videoFileDTO -> !pathsOfExistingFiles.contains(videoFileDTO.getFilePath()))
+                        .map(VideoFileDAO::new)
+                        .collect(Collectors.toList());
 
         repository.saveAll(filesToAdd);
+// TODO: 11.12.2019 DTO->DAO need to create Mapper
+        if (filesCountLimit != null) {
+//            List<VideoFileDAO> filesToDelete = repository.findAllByOrderByDateDesc().stream()
+//                    .skip(filesCountLimit)
+//                    .map(VideoFileDAO::new)
+//                    .collect(Collectors.toList());
+//
+//            System.out.println("==================================");
+//            System.out.println("filesToDelete count = " + filesToDelete.size());
+//            System.out.println("==================================");
+//            repository.deleteAll(filesToDelete);
+
+
+            List<String> filePathsToDelete = repository.findAllByOrderByDateDesc().stream()
+                    .skip(filesCountLimit)
+                    .map(a -> a.getFilePath())
+                    .collect(Collectors.toList());
+
+            System.out.println("==================================");
+            System.out.println("filePathsToDelete count = " + filePathsToDelete.size());
+            System.out.println("==================================");
+
+            filePathsToDelete.forEach(path -> repository.deleteByFilePath(path));
+//            repository.deleteAllByFilePath(filePathsToDelete);
+
+            // TODO: 11.12.2019 Mistake
+//            javax.persistence.TransactionRequiredException: No EntityManager with actual transaction available for current thread - cannot reliably process 'remove' call
+
+        }
 
 //        try {
 //            repository.saveAll(files);

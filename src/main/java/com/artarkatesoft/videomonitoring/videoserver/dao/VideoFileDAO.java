@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
-@Data
+//@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "video_file")
@@ -51,6 +52,16 @@ public class VideoFileDAO {
 
     }
 
+    public VideoFileDAO(VideoFileDAOwoSnapshotProjection dto) {
+        this.fileName = dto.getFileName();
+        this.filePath = dto.getFilePath();
+        this.size = dto.getSize();
+        this.date = dto.getDate();
+        this.cameraName = dto.getCameraName();
+        this.videoType = dto.getVideoType();
+
+    }
+
 
     public String getFileName() {
         return fileName;
@@ -82,5 +93,24 @@ public class VideoFileDAO {
 
     public void setSnapshot(byte[] snapshot) {
         this.snapshot = snapshot;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VideoFileDAO that = (VideoFileDAO) o;
+        return fileName.equals(that.fileName) &&
+                filePath.equals(that.filePath) &&
+                size.equals(that.size) &&
+                date.equals(that.date) &&
+                cameraName.equals(that.cameraName) &&
+                videoType.equals(that.videoType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fileName, filePath, size, date, cameraName, videoType);
     }
 }
