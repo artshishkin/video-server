@@ -36,13 +36,12 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 //    Integer save(@Param("city")String city,@Param("country") String country);
 
 
-    //    List<VideoFile> findTop10ByOrderByDateDesc(Long size);
+
     List<VideoFileDAO> findTop10ByOrderByDateDesc();
 
     Page<VideoFileDAO> findAllBySnapshotIsNull(Pageable pageable);
 
     List<VideoFileDAO> findAllBySnapshotIsNull();
-
     Page<VideoFileDAO> findAllBySnapshotIsNotNull(Pageable pageable);
 
     List<VideoFileDAO> findAllBySnapshotIsNotNull();
@@ -52,9 +51,9 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 
     VideoFileDAO findOneByFilePathContains(String filePath);
 
-    List<VideoFileDTO> findAllBy(Sort sort);
+//    List<VideoFileDTO> findAllBy(Sort sort);
 
-    Page<VideoFileDTO> findAllBy(Pageable pageable);
+//    Page<VideoFileDTO> findAllBy(Pageable pageable);
 
     //    Page<VideoFileDTO> findAllByCameraName(String cameraName, Pageable pageable);
     Page<VideoFileDAOwoSnapshotProjection> findAllByCameraName(String cameraName, Pageable pageable);
@@ -63,8 +62,9 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 
 
     List<VideoFileDAOwoSnapshotProjection> findAllByOrderByDateDesc();
+    Page<VideoFileDAOwoSnapshotProjection> findAllByOrderByDateDesc(Pageable pageable);
 
-    void deleteAllByFilePath(Iterable<String> filePaths);
+
 
     @Transactional
     void deleteByFilePath(String filePath);
@@ -74,7 +74,7 @@ public interface VideoFileRepository extends JpaRepository<VideoFileDAO, Long> {
 // TODO: 11.12.2019 Mistake must be fixed
 //    org.springframework.dao.InvalidDataAccessApiUsageException: You're trying to execute a streaming query method without a surrounding transaction that keeps the connection open so that the Stream can actually be consumed. Make sure the code consuming the stream uses @Transactional or any other way of declaring a (read-only) transaction.
 
-
+// TODO: 12.12.2019  
 //    There was an unexpected error (type=Internal Server Error, status=500).
 //    could not extract ResultSet; nested exception is org.hibernate.exception.GenericJDBCException: could not extract ResultSet
 

@@ -1,5 +1,6 @@
 package com.artarkatesoft.videomonitoring.videoserver.services;
 
+import com.artarkatesoft.videomonitoring.videoserver.aop.TrackTime;
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAO;
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
@@ -33,9 +34,14 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
     @Value("${com.artarkatesoft.cam.video-server.video-file-service.files-limit:#{null}}")
     private Long filesCountLimit;
 
+    @TrackTime
     @Override
     public List<VideoFileDTO> findAll() {
-        return repository.findAllBy(Sort.by(Sort.Direction.DESC, "date"));
+        return repository.findAllByOrderByDateDesc()
+                .stream()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
+//        return repository.findAllBy(Sort.by(Sort.Direction.DESC, "date"));
 
 
 //        return repository
@@ -52,10 +58,18 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 //                .get()
 //                .map(VideoFileDTO::new)
 //                .collect(Collectors.toList());
-        Page<VideoFileDTO> page = repository.findAllBy(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
-// TODO: 06.12.2019 Refactor that not to call findAll() here
-        List<VideoFileDTO> videoFileDTOList = page.toList();
-        return videoFileDTOList;
+
+
+//        Page<VideoFileDTO> page = repository.findAllBy(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+//        // TODO: 06.12.2019 Refactor that not to call findAll() here
+//        List<VideoFileDTO> videoFileDTOList = page.toList();
+//        return videoFileDTOList;
+
+
+        return repository.findAllByOrderByDateDesc(PageRequest.of(0, limit))
+                .stream()
+                .map(VideoFileDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -113,6 +127,17 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
                 .map(VideoFileDTO::new)
                 .collect(Collectors.toList());
         return videoFileDTOList;
+
+//        if (limit == null) return repository
+//                .findAllBySnapshotIsNull()
+//                .stream()
+//                .map(VideoFileDTO::new)
+//                .collect(Collectors.toList());
+//        Page<VideoFileDAO> page = repository.findAllBySnapshotIsNull(PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "date")));
+//        List<VideoFileDTO> videoFileDTOList = page.get()
+//                .map(VideoFileDTO::new)
+//                .collect(Collectors.toList());
+//        return videoFileDTOList;
     }
 
     @Override
@@ -137,9 +162,9 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
             repository.save(videoFileDAO);
     }
 
+    @TrackTime
     @Override
     public void saveAll(Collection<VideoFileDTO> files) {
-        long start = System.currentTimeMillis();
 
 
 //        List<String> pathsOfExistingFiles = repository.findAll()
@@ -207,7 +232,6 @@ public class DatabaseVideoFileServiceImpl implements VideoFileService {
 
 //                repository.saveIgnore(file.getFullName(),file.getFilePath(),file.getSize(),file.getDate(),file.getCameraName(),file.getVideoType());
 
-        System.out.printf("Total time of saveAll %d ms\n", System.currentTimeMillis() - start);
 
 //      When  if (!repository.exists(Example.of(file)))
 //                repository.save(file);

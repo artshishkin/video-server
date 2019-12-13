@@ -3,6 +3,8 @@ package com.artarkatesoft.videomonitoring.videoserver.controllers;
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
 import com.artarkatesoft.videomonitoring.videoserver.services.VideoFileService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -24,18 +26,25 @@ public class VideoFileController {
     @Autowired
     private VideoFileService videoFileService;
 
+    private Logger logger= LoggerFactory.getLogger(this.getClass());
+
     @GetMapping("/api/videos")
     @ResponseBody
     public List<VideoFileDTO> getAllVideoFilesAPI(@RequestParam(name = "limit", required = false) Integer limit) {
         long start = System.currentTimeMillis();
 
-        List<VideoFileDTO> allFiles = limit == null ? videoFileService.findAll() : videoFileService.findAllLimitedBy(limit);
+        List<VideoFileDTO> allFiles =
+                limit == null ?
+                        videoFileService.findAll() :
+                        videoFileService.findAllLimitedBy(limit);
 
-        System.out.printf(" videoFileService.findAll() takes %d ms\n", System.currentTimeMillis() - start);
+
+        logger.info(" videoFileService.findAll() takes {} ms",System.currentTimeMillis() - start);
+
 
         int size = allFiles.size();
-
-        System.out.printf("Size of videoFileService.findAll(): %d\n", size);
+        logger.info("Size of videoFileService.findAll(): {}", size);
+        logger.info("allFiles.getClass().getCanonicalName(): {}", allFiles.getClass().getCanonicalName());
 
         return allFiles;
 //        if (limit == null) return allFiles;
@@ -56,19 +65,16 @@ public class VideoFileController {
 
     @GetMapping("/videos")
     public String getAllVideoFiles(Model model, @RequestParam(name = "limit", required = false) Integer limit) {
-        long start = System.currentTimeMillis();
-//        List<VideoFile> allFiles = videoFileService.findAll();
+
+
         List<VideoFileDTO> allFiles = limit == null ?
                 videoFileService.findAll() :
                 videoFileService.findAllLimitedBy(limit);
 
-        System.out.printf(" videoFileService.findAll() takes %d ms\n", System.currentTimeMillis() - start);
         int size = allFiles.size();
         System.out.printf("Size of videoFileService.findAll(): %d\n", size);
         model.addAttribute("videoFilesFromController", allFiles);
 
-
-//        return allFiles.stream().limit(limit).collect(Collectors.toList());
         return "videos_page";
     }
 
