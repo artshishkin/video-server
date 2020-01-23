@@ -2,9 +2,11 @@ package com.artarkatesoft.videomonitoring.videoserver.controllers;
 
 import com.artarkatesoft.videomonitoring.videoserver.dao.VideoFileDAOwoSnapshotProjection;
 import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTO;
+import com.artarkatesoft.videomonitoring.videoserver.dto.VideoFileDTOLocaleDate;
 import com.artarkatesoft.videomonitoring.videoserver.services.VideoFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -15,10 +17,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Controller
 public class VideoFileController {
@@ -26,7 +31,7 @@ public class VideoFileController {
     @Autowired
     private VideoFileService videoFileService;
 
-    private Logger logger= LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("/api/videos")
     @ResponseBody
@@ -39,7 +44,7 @@ public class VideoFileController {
                         videoFileService.findAllLimitedBy(limit);
 
 
-        logger.info(" videoFileService.findAll() takes {} ms",System.currentTimeMillis() - start);
+        logger.info(" videoFileService.findAll() takes {} ms", System.currentTimeMillis() - start);
 
 
         int size = allFiles.size();
@@ -64,16 +69,24 @@ public class VideoFileController {
     }
 
     @GetMapping("/videos")
-    public String getAllVideoFiles(Model model, @RequestParam(name = "limit", required = false) Integer limit) {
-
+    public String getAllVideoFiles(Model model, @RequestParam(name = "limit", required = false) Integer limit, HttpServletRequest request) {
+        Locale locale = request.getLocale();
 
         List<VideoFileDTO> allFiles = limit == null ?
                 videoFileService.findAll() :
                 videoFileService.findAllLimitedBy(limit);
 
-        int size = allFiles.size();
-        System.out.printf("Size of videoFileService.findAll(): %d\n", size);
-        model.addAttribute("videoFilesFromController", allFiles);
+        List<VideoFileDTOLocaleDate> withLocale = allFiles.stream()
+                .map(dto -> {
+                    VideoFileDTOLocaleDate dtoLocaleDate = new VideoFileDTOLocaleDate();
+                    BeanUtils.copyProperties(dto, dtoLocaleDate);
+                    dtoLocaleDate.setLocale(locale);
+                    return dtoLocaleDate;
+                })
+                .collect(Collectors.toList());
+
+//        model.addAttribute("videoFilesFromController", allFiles);
+        model.addAttribute("videoFilesFromController", withLocale);
 
         return "videos_page";
     }

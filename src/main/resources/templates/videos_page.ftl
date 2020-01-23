@@ -34,7 +34,8 @@
                 <td>${video_file.cameraName}</td>
                 <td>${video_file.videoType}</td>
                 <td>${video_file.fileName}</td>
-                <td>${video_file.date}</td>
+<#--                <td>${video_file.date}</td>-->
+                <td>${video_file.formattedDate}</td>
                 <td>${video_file.size}</td>
                 <td>
                     <img src="/videos/snapshot?video_file_path=${video_file.filePathEncoded}" class="img-thumbnail" alt="No snapshot"/>
