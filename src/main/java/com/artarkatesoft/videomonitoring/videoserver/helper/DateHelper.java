@@ -14,6 +14,8 @@ public class DateHelper {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
+
+
         return (calendar.getTimeInMillis() * TICKS_PER_MILLISECOND) + TICKS_AT_EPOCH;
 
     }
